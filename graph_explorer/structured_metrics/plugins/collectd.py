@@ -10,7 +10,7 @@ class CollectdPlugin(Plugin):
 
         self.targets = [
             {
-                'match': prefix + '(?P<server>[^\.]+)\.(?P<collectd_plugin>cpu)\.(?P<core>[^\.]+)\.cpu\.(?P<type>[^\.]+)$',
+                'match': prefix + '(?P<server>[^\.]+)\.(?P<collectd_plugin>cpu)[\-\.](?P<core>[^\.]+)\.cpu[\-\.](?P<type>[^\.]+)$',
                 'target_type': 'gauge_pct',
                 'tags': {
                     'unit': 'Jiff',
@@ -23,13 +23,13 @@ class CollectdPlugin(Plugin):
                 'configure': lambda self, target: self.fix_load(target)
             },
             {
-                'match': prefix + '(?P<server>[^\.]+)\.interface\.(?P<device>[^\.]+)\.if_(?P<wt>[^\.]+)\.(?P<dir>[^\.]+)$',
+                'match': prefix + '(?P<server>[^\.]+)\.interface[\-\.](?P<device>[^\.]+)\.if_(?P<wt>[^\.]+)\.(?P<dir>[^\.]+)$',
                 'target_type': 'counter',
                 'tags': {'collectd_plugin': 'network'},
                 'configure': lambda self, target: self.fix_network(target)
             },
             {
-                'match': prefix + '(?P<server>[^\.]+)\.memory\.memory\.(?P<type>[^\.]+)$',
+                'match': prefix + '(?P<server>[^\.]+)\.memory\.memory[\-\.](?P<type>[^\.]+)$',
                 'target_type': 'gauge',
                 'tags': {
                     'unit': 'B',
@@ -37,14 +37,102 @@ class CollectdPlugin(Plugin):
                 }
             },
             {
-                'match': prefix + '(?P<server>[^\.]+)\.df\.(?P<mountpoint>[^\.]+)\.df_complex\.(?P<type>[^\.]+)$',
+                'match': prefix + '(?P<server>[^\.]+)\.df[\-\.](?P<mountpoint>[^\.]+)\.df_complex[\-\.](?P<type>[^\.]+)$',
                 'target_type': 'gauge',
                 'tags': {'unit': 'B'}
             },
             {
-                'match': prefix + '(?P<server>[^\.]+)\.(?P<collectd_plugin>disk)\.(?P<device>[^\.]+)\.disk_(?P<wt>[^\.]+)\.(?P<operation>[^\.]+)$',
+                'match': prefix + '(?P<server>[^\.]+)\.(?P<collectd_plugin>disk)[\-\.](?P<device>[^\.]+)\.disk_(?P<wt>[^\.]+)\.(?P<operation>[^\.]+)$',
                 'configure': lambda self, target: self.fix_disk(target)
-            }
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>irq)\.irq[\-\.](?P<wt>.*)$',
+                'target_type': 'counter',
+                'tags': {
+                    'unit': 'calls',
+                    'what': 'irq_calls'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>processes)\.ps_state[\-\.](?P<state>.*)$',
+                'target_type': 'gauge',
+                'tags': {
+                    'unit': 'procs',
+                    'what': 'procs_in_state'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>processes)\.(?P<value>fork_rate)$',
+                'target_type': 'counter',
+                'tags': {
+                    'unit': 'procs',
+                    'what': 'fork_rate'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>[^\.]+)\.swap\.swap[\-\.](?P<type>[^\.]+)$',
+                'target_type': 'gauge',
+                'tags': {
+                    'unit': 'B',
+                    'where': 'swap'
+                }
+            },
+            {
+                'match': prefix + '(?P<server>[^\.]+)\.swap\.swap_io[\-\.](?P<dir>[^\.]+)$',
+                'target_type': 'counter',
+                'tags': {
+                    'unit': 'B',
+                    'where': 'swap_io'
+                }
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>tcpconns)[\-\.](?P<port>\d+)[\-\.]local\.tcp_connections[\-\.](?P<state>.*)$',
+                'target_type': 'gauge',
+                'tags': {
+                    'unit': 'connections',
+                    'what': 'tcp_connections_in_state'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>contextswitch)\.(?P<value>contextswitch)$',
+                'target_type': 'counter',
+                'tags': {
+                    'unit': 'fork/s',
+                    'what': 'contextswitch'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>users)\.(?P<value>users)$',
+                'target_type': 'gauge',
+                'tags': {
+                    'unit': 'users',
+                    'what': 'users_logged'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>entropy)\.(?P<value>entropy)$',
+                'target_type': 'gauge',
+                'tags': {
+                    'unit': 'bits',
+                    'what': 'entropy'
+                }
+
+            },
+            {
+                'match': prefix + '(?P<server>.+?)\.(?P<collectd_plugin>conntrack)\.(?P<value>conntrack)$',
+                'target_type': 'gauge',
+                'tags': {
+                    'unit': 'entries',
+                    'what': 'conntrack'
+                }
+
+            },
         ]
         super(CollectdPlugin, self).__init__(config)
 

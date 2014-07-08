@@ -22,7 +22,7 @@ class Backend(object):
         self.logger = logger
 
     def download_metrics_json(self):
-        url = urljoin(self.config.graphite_url_server, "metrics/index.json")
+        url = urljoin(self.config.graphite_url_server, "metrics/expand?query=**")
         if self.config.graphite_username is not None and self.config.graphite_password is not None:
             username = self.config.graphite_username
             password = self.config.graphite_password
@@ -49,6 +49,8 @@ class Backend(object):
             # workaround for graphite bug where metrics can have leading dots
             # has been fixed (https://github.com/graphite-project/graphite-web/pull/293)
             # but older graphite versions still do it
+            if 'results' in metrics:
+                metrics = metrics['results'][1:]
             if len(metrics) and metrics[0][0] == '.':
                 metrics = [m.lstrip('.') for m in metrics]
             return metrics
